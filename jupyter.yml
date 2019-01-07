@@ -41,6 +41,8 @@ spec:
           name: notebook-volume
         - mountPath: /home/jovyan/work/mnt/
           name: host-mount
+        - mountPath: "/var/run/docker.sock"
+          name: dockersock
   volumes:
   - name: notebook-volume
     gitRepo:
@@ -48,3 +50,6 @@ spec:
   - name: host-mount
     hostPath:
       path: /mnt
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock

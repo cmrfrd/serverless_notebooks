@@ -1,5 +1,7 @@
 FROM serverless_datascience:base
 
+RUN wget -qO- https://get.docker.com/ | sh
+
 ##
 ## Jupyter extension installation
 ##
@@ -22,7 +24,8 @@ RUN chmod +x /tini
 ##
 ## docker run startup
 ##
-RUN chown -R $NB_USER /home/$NB_USER/.local
-USER $NB_USER
+RUN chown -R $NB_USER /home/$NB_USER/.local &&\
+    usermod -aG docker $NB_USER
+USER root
 RUN echo "source activate serverless_datascience" > ~/.bashrc
 ENTRYPOINT [ "/tini", "--", "bash", "-c"]

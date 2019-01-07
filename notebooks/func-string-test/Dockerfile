@@ -31,13 +31,13 @@ ENV JQ_NOTEBOOK_STDOUT="[.cells | .[] | .outputs] | del(.[] | select(. == []))[0
 ##
 ## $(cat $ENVIRONMENT | yq .name)
 RUN echo 'source activate serverless_datascience &&\
-  	  json2yaml > params.yml &&\
-	  (papermill $NOTEBOOK /tmp/out.ipynb \
-	            -f $(pwd)/params.yml \
-	            --no-log-output \
-	            --no-progress-bar \
-           	    --not-report-mode > /dev/null 2>&1) &&\  
-	  cat /tmp/out.ipynb | jq -c "$JQ_NOTEBOOK_STDOUT"' > execute-notebook-script.sh && \
+  	      json2yaml > $(pwd)/params.yml &&\
+	      (papermill $NOTEBOOK /tmp/out.ipynb \
+	                 -f $(pwd)/params.yml \
+	                 --no-log-output \
+	                 --no-progress-bar \
+           	         --not-report-mode > /dev/null 2>&1) &&\  
+	      cat /tmp/out.ipynb | jq -c "$JQ_NOTEBOOK_STDOUT"' > execute-notebook-script.sh && \
     chmod +x execute-notebook-script.sh
 
 ENV fprocess="bash execute-notebook-script.sh"

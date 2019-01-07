@@ -17,3 +17,5 @@ helm upgrade openfaas \
 	 --namespace openfaas  \
 	 --set basic_auth=false \
 	 --set functionNamespace=openfaas-fn
+
+helm upgrade openfaas openfaas/openfaas --install --set "faasnetesd.imagePullPolicy=IfNotPresent"
