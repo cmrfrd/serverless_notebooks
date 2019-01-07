@@ -1,0 +1,31 @@
+FROM jupyter/scipy-notebook
+
+##
+## os dependencies
+##
+USER root
+RUN apt-get update &&\
+    apt-get install -y gnupg curl &&\
+    curl -sL https://deb.nodesource.com/setup_8.x | bash &&\
+	apt-get install -y \
+	build-essential \
+	graphviz \
+	graphviz-dev \
+	gfortran \
+	nodejs \
+	jq &&\
+    apt-get clean &&\
+    pip install yq ## for parsing yaml
+
+##
+## Environment var config
+##
+ENV CONDA_DIR /opt/conda
+ENV PATH /home/jovyan/.local/bin:$PATH
+
+##
+## Conda environment installation
+##
+ENV ENVIRONMENT=/environment.yml
+ADD environment.yml $ENVIRONMENT
+RUN conda env create -f /environment.yml

@@ -1,0 +1,28 @@
+FROM serverless_datascience:base
+
+##
+## Jupyter extension installation
+##
+RUN bash -c "\
+	source activate serverless_datascience;\
+	jupyter serverextension enable --py --sys-prefix jupyterlab && \
+	jupyter nbextension enable --py --sys-prefix widgetsnbextension && \
+	jupyter nbextension enable codefolding/main && \
+	jupyter labextension install @pyviz/jupyterlab_pyviz && \
+	jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
+	jupyter labextension install @jupyterlab/celltags"
+
+##
+## Install tini as part of os dependencies
+##
+ENV TINI_VERSION v0.3.4 
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini 
+RUN chmod +x /tini 
+
+##
+## docker run startup
+##
+RUN chown -R $NB_USER /home/$NB_USER/.local
+USER $NB_USER
+RUN echo "source activate serverless_datascience" > ~/.bashrc
+ENTRYPOINT [ "/tini", "--", "bash", "-c"]

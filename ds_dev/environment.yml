@@ -1,0 +1,22 @@
+name: serverless_datascience
+dependencies:
+- python=3.7
+- papermill
+- nodejs
+- pandas
+- numpy==1.15.1
+- openjdk
+- maven
+- py4j
+- ipywidgets
+- jupyterlab
+- pyzmq
+- requests
+- beakerx
+- pyviz/label/dev::pyviz
+- ipykernel
+- ipython
+- notebook
+- pip
+- pip:
+    - json2yaml

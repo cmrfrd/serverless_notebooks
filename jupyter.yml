@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyter
+  labels:
+    app: jupyter
+spec:
+  ports:
+  - port: 8888
+    name: http
+    targetPort: 8888
+  selector:
+    app: jupyter
+  type: NodePort
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jupyter
+  labels:
+    app: jupyter
+spec:
+  containers:
+    - name: jupyter
+      image: serverless_datascience:dev
+      command: ["bash", "-c", "source activate serverless_datascience && \
+                               jupyter notebook \
+                                       --ip=0.0.0.0 \
+                                       --NotebookApp.iopub_data_rate_limit=10000000 \
+                                       --NotebookApp.token= \
+                                       --allow-root"]
+#      command: ["source", "activate", "serverless_datascience", "&&", "conda", "env", "list"] 
+      ports:
+      - containerPort: 8888
+        protocol: TCP
+        name: http
+      volumeMounts:
+        - mountPath: /home/jovyan/work/
+          name: notebook-volume
+        - mountPath: /home/jovyan/work/mnt/
+          name: host-mount
+  volumes:
+  - name: notebook-volume
+    gitRepo:
+      repository: "https://github.com/kubernetes-client/python.git"
+  - name: host-mount
+    hostPath:
+      path: /mnt
