@@ -1,9 +1,0 @@
-provider:
-  name: faas
-functions:
-  func-string-test:
-    lang: dockerfile
-    handler: ./func-string-test
-    image: func-string-test:latest
-build-arg:
-  - notebook=notebook_string_test.ipynb

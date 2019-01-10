@@ -1,24 +1,23 @@
 FROM serverless_datascience:base
 
 ##
-## Add notebook from build argument.
-## 
-##
-ARG notebook_dir=.
-ENV NOTEBOOK_DIR=$notebook_dir
-ARG notebook
-ENV NOTEBOOK=$notebook
-ADD $NOTEBOOK_DIR/$NOTEBOOK /notebook.ipynb
-
-##
 ## Notebook execution environment variables
 ## for notebook execution and parsing
 ##
 ## NOTEBOOK             : placeholder name for executing notebook
 ## JQ_NOTEBOOK_STDOUT   : jq query to parse first stdout output of an executed notebook
 ##
-ENV NOTEBOOK=/notebook.ipynb
-ENV JQ_NOTEBOOK_STDOUT="[.cells | .[] | .outputs] | del(.[] | select(. == []))[0] | [ .[] | select( .name == \"stdout\" ) ][0] | .text[0]"
+ENV PLACEHOLDER_NOTEBOOK=/notebook.ipynb
+ENV OUTPUT_NOTEBOOK=/out.ipynb
+ENV JQ_NOTEBOOK_STDOUT="[.cells | .[] | .outputs] | del(.[] | select( (. == []) or (. == null)))[0] | [ .[] | select( .name == \"stdout\" ) ][0] | .text[0]"
+
+##
+## Add notebook from build argument.
+## 
+##
+ARG notebook
+ENV INPUT_NOTEBOOK=$notebook
+ADD $INPUT_NOTEBOOK $PLACEHOLDER_NOTEBOOK
 
 ##
 ## Inline script creation for notebook execution and response
@@ -30,14 +29,21 @@ ENV JQ_NOTEBOOK_STDOUT="[.cells | .[] | .outputs] | del(.[] | select(. == []))[0
 ## - parse executed notebook for stdout and return 
 ##
 ## $(cat $ENVIRONMENT | yq .name)
-RUN echo 'source activate serverless_datascience &&\
+## serverless_datascience
+RUN echo 'source activate $(cat $ENVIRONMENT | yq -r .name ) &&\
   	      json2yaml > $(pwd)/params.yml &&\
-	      (papermill $NOTEBOOK /tmp/out.ipynb \
+	      (papermill $PLACEHOLDER_NOTEBOOK $OUTPUT_NOTEBOOK \
 	                 -f $(pwd)/params.yml \
 	                 --no-log-output \
 	                 --no-progress-bar \
-           	         --not-report-mode > /dev/null 2>&1) &&\  
-	      cat /tmp/out.ipynb | jq -c "$JQ_NOTEBOOK_STDOUT"' > execute-notebook-script.sh && \
+           	         --not-report-mode > /dev/null 2>&1) &&\    
+	      cat $OUTPUT_NOTEBOOK | jq -c "$JQ_NOTEBOOK_STDOUT"' > execute-notebook-script.sh && \
+    chmod +x execute-notebook-script.sh
+
+
+ADD execute_notebook.py execute_notebook.py
+RUN echo 'source activate $(cat $ENVIRONMENT | yq -r .name ) &&\
+          python3 execute_notebook.py' > execute-notebook-script.sh &&\
     chmod +x execute-notebook-script.sh
 
 ENV fprocess="bash execute-notebook-script.sh"
