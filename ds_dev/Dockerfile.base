@@ -13,7 +13,8 @@ RUN apt-get update &&\
 	nodejs \
 	jq &&\
     apt-get clean &&\
-    pip install yq ## for parsing yaml
+    pip install yq &&\
+    conda update conda
 
 ##
 ## Environment var config

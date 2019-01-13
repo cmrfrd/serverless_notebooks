@@ -1,5 +1,8 @@
 FROM serverless_datascience:base
 
+##
+## Install docker in docker
+##
 RUN wget -qO- https://get.docker.com/ | sh
 
 ##
