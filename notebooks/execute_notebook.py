@@ -7,7 +7,9 @@ logger.disabled=True
 
 ## Read stdin as json to transform into paramaters
 ## Get return type for notebook from 'Http_Accept' header
-st = "".join(sys.stdin) if sys.stdin else "{}"
+st = sys.stdin.read()
+paramaters = json.loads("".join(st)) if st!="" \
+             else json.loads("{}")
 notebook_return_type = os.environ['Http_Accept'].split(",")[0]
 
 ## Execute notebook from environment variable notebook paths
@@ -15,7 +17,7 @@ notebook_return_type = os.environ['Http_Accept'].split(",")[0]
 papermill.execute_notebook(
     os.environ["PLACEHOLDER_NOTEBOOK"],
     os.environ["OUTPUT_NOTEBOOK"],
-    json.loads(st),
+    paramaters,
     progress_bar=False,
     log_output=False,
     report_mode=False

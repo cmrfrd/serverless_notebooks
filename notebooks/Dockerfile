@@ -1,5 +1,8 @@
 FROM serverless_datascience:base
 
+RUN curl -sL https://github.com/openfaas/faas/releases/download/0.9.6/fwatchdog > /usr/bin/fwatchdog \
+    && chmod +x /usr/bin/fwatchdog
+
 ##
 ## Notebook execution environment variables
 ## for notebook execution and parsing
@@ -28,27 +31,11 @@ ADD $INPUT_NOTEBOOK $PLACEHOLDER_NOTEBOOK
 ## - execute notebook with yaml file paramaters
 ## - parse executed notebook for stdout and return 
 ##
-## $(cat $ENVIRONMENT | yq .name)
-## serverless_datascience
-RUN echo 'source activate $(cat $ENVIRONMENT | yq -r .name ) &&\
-  	      json2yaml > $(pwd)/params.yml &&\
-	      (papermill $PLACEHOLDER_NOTEBOOK $OUTPUT_NOTEBOOK \
-	                 -f $(pwd)/params.yml \
-	                 --no-log-output \
-	                 --no-progress-bar \
-           	         --not-report-mode > /dev/null 2>&1) &&\    
-	      cat $OUTPUT_NOTEBOOK | jq -c "$JQ_NOTEBOOK_STDOUT"' > execute-notebook-script.sh && \
-    chmod +x execute-notebook-script.sh
-
-
 ADD execute_notebook.py execute_notebook.py
 RUN echo 'source activate $(cat $ENVIRONMENT | yq -r .name ) &&\
           python3 execute_notebook.py' > execute-notebook-script.sh &&\
     chmod +x execute-notebook-script.sh
 
 ENV fprocess="bash execute-notebook-script.sh"
-
-RUN curl -sL https://github.com/openfaas/faas/releases/download/0.9.6/fwatchdog > /usr/bin/fwatchdog \
-    && chmod +x /usr/bin/fwatchdog
 CMD ["fwatchdog"]
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
