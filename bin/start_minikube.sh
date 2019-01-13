@@ -6,7 +6,7 @@ minikube start \
 	 --cpus=4 \
 	 --disk-size=30GB \
 	 --kubernetes-version=v1.11.0 \
-	 --insecure-registry="10.0.0.0/24" \
+	 --insecure-registry localhost:5000 \
 	 --profile serverless_datascience
 
 minikube mount $(pwd):/mnt &
