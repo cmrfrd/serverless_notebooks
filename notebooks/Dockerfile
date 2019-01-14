@@ -12,7 +12,6 @@ RUN curl -sL https://github.com/openfaas/faas/releases/download/0.9.6/fwatchdog 
 ##
 ENV PLACEHOLDER_NOTEBOOK=/notebook.ipynb
 ENV OUTPUT_NOTEBOOK=/out.ipynb
-ENV JQ_NOTEBOOK_STDOUT="[.cells | .[] | .outputs] | del(.[] | select( (. == []) or (. == null)))[0] | [ .[] | select( .name == \"stdout\" ) ][0] | .text[0]"
 
 ##
 ## Add notebook from build argument.
@@ -31,6 +30,7 @@ ADD $INPUT_NOTEBOOK $PLACEHOLDER_NOTEBOOK
 ## - execute notebook with yaml file paramaters
 ## - parse executed notebook for stdout and return 
 ##
+ENV PYTHONWARNINGS="ignore"
 ADD execute_notebook.py execute_notebook.py
 RUN echo 'source activate $(cat $ENVIRONMENT | yq -r .name ) &&\
           python3 execute_notebook.py' > execute-notebook-script.sh &&\
