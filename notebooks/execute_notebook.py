@@ -1,4 +1,4 @@
-import os,sys,json,logging,papermill
+import os,sys,json,logging,papermill,warnings
 
 ## Disable papermill logger
 ## to read stdout without logs
@@ -6,11 +6,17 @@ logger = logging.getLogger('papermill')
 logger.disabled=True
 
 ## Read stdin as json to transform into paramaters
-## Get return type for notebook from 'Http_Accept' header
-st = sys.stdin.read()
-paramaters = json.loads("".join(st)) if st!="" \
-             else json.loads("{}")
-notebook_return_type = os.environ['Http_Accept'].split(",")[0]
+## if none stdin create empty paramaters
+paramaters = json.loads("{}")
+try:
+    st = sys.stdin.read()
+    paramaters = json.loads("".join(st))
+except:
+    paramaters = json.loads("{}")
+
+## Get return type for notebook from 'Http_Accept' header   
+## if none return empty string (stdout)
+notebook_return_type = os.environ.get('Http_Accept',"").split(",")[0]
 
 ## Execute notebook from environment variable notebook paths
 ## Pass in stdin as json dict and disable all output
@@ -28,7 +34,7 @@ papermill.execute_notebook(
 ## meets 'Http_Accept' header, if none match 
 ## return last output
 ##
-## If 'Http_Accept' is */* default to stdout
+## If 'Http_Accept' is */* or "" default to stdout
 output_notebook = papermill.read_notebook(os.environ["OUTPUT_NOTEBOOK"])
 outputs=sum([list(c["outputs"]) \
              if "outputs" in c.keys() else [] \
@@ -40,8 +46,7 @@ for cell in outputs[::-1]:
         break
 
     elif (cell["output_type"] == "stream") and \
-         ((notebook_return_type == "*/*") or \
-          (notebook_return_type == "")):
+         (notebook_return_type in ["*/*", ""]):
         print (cell["text"])
         break
         
