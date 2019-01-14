@@ -35,6 +35,12 @@ ADD execute_notebook.py execute_notebook.py
 RUN echo 'source activate $(cat $ENVIRONMENT | yq -r .name ) &&\
           python3 execute_notebook.py' > execute-notebook-script.sh &&\
     chmod +x execute-notebook-script.sh
+    
+##
+## Environment arguments for watchdog
+##
+ENV write_timeout 20
+ENV read_timeout 20
 
 ENV fprocess="bash execute-notebook-script.sh"
 CMD ["fwatchdog"]
