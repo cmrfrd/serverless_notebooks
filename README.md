@@ -33,8 +33,8 @@ Before deploying any of the components we will be building the docker images nee
 eval $(minikube docker-env)
 
 ## Build base and dev images
-./build_serverless_datascience_base.sh
-./build_serverless_datascience_dev.sh
+./bin/build_serverless_datascience_base.sh
+./bin/build_serverless_datascience_dev.sh
 ```
 
 This step takes a while...
