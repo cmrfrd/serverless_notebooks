@@ -24,6 +24,21 @@ The first method is great for general applications but any intermediate viewable
 - [Minikube](https://github.com/kubernetes/minikube) version 0.30.0
 - [Docker](https://docs.docker.com/install/)
 
+#### Step zero: building the docker images
+
+Before deploying any of the components we will be building the docker images needed to deploy jupyter or any of the notebook function containers. To build the images, some basic utility scripts are provided
+
+``` shell
+## Build to minikube registry
+eval $(minikube docker-env)
+
+## Build base and dev images
+./build_serverless_datascience_base.sh
+./build_serverless_datascience_dev.sh
+```
+
+This step takes a while...
+
 #### Step one: Build a cluster
 
 This repo requires access to a kubernetes cluster. To create a local cluster with `minikube` you can run 
@@ -104,4 +119,4 @@ sh -c '(kubectl port-forward -n default svc/jupyter 9999:8888 &\
         kubectl port-forward -n openfaas svc/gateway-external 8080:8080)'
 ```
 
-You can now go to `localhost:9999` in your browser and navigate to the notebooks for further instructions
+You can now go to `localhost:9999/lab` in your browser and navigate to `mnt/notebooks/deploy_notebook_function.ipynb` for further instructions. 
