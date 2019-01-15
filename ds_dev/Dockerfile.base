@@ -28,3 +28,12 @@ ENV PATH /home/jovyan/.local/bin:$PATH
 ENV ENVIRONMENT=/environment.yml
 ADD environment.yml $ENVIRONMENT
 RUN conda env create -f /environment.yml
+
+##
+## Delete beakerx base log4j jar to stop logging to stdout
+## see: https://github.com/twosigma/beakerx/blob/3b2a272ee2699bdba400d83d813fe6744c533e38/kernel/base/build.gradle#L42
+##
+RUN bash -c "source activate $(cat $ENVIRONMENT | yq -r .name ) ;\
+             cd /opt/conda/envs/$(cat $ENVIRONMENT | yq -r .name )/lib/python3.6/site-packages/beakerx/kernel/base/lib/ ;\
+             wget http://central.maven.org/maven2/org/slf4j/slf4j-nop/1.7.25/slf4j-nop-1.7.25.jar ;\
+ 	     rm slf4j-log4j12-1.7.25.jar"

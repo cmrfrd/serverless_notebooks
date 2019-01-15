@@ -9,7 +9,7 @@ RUN wget -qO- https://get.docker.com/ | sh
 ## Jupyter extension installation
 ##
 RUN bash -c "\
-	source activate serverless_datascience;\
+        source activate $(cat $ENVIRONMENT | yq -r .name );\
 	jupyter serverextension enable --py --sys-prefix jupyterlab && \
 	jupyter nbextension enable --py --sys-prefix widgetsnbextension && \
 	jupyter nbextension enable codefolding/main && \
