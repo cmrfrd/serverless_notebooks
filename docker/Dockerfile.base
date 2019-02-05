@@ -23,11 +23,15 @@ ENV CONDA_DIR /opt/conda
 ENV PATH /home/jovyan/.local/bin:$PATH
 
 ##
-## Conda environment installation
+## Conda environment installation and kernal register
 ##
 ENV ENVIRONMENT=/environment.yml
 ADD environment.yml $ENVIRONMENT
 RUN conda env create -f /environment.yml
+RUN python -m ipykernel install \
+	--user \
+	--name $(cat $ENVIRONMENT | yq -r .name ) \
+	--display-name "$(cat $ENVIRONMENT | yq -r .name )"
 
 ##
 ## Delete beakerx base log4j jar to stop logging to stdout
