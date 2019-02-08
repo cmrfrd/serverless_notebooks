@@ -1,20 +1,15 @@
 name: serverless_datascience
 dependencies:
 - python=3.6.*
-- nodejs
-- pandas
-- openjdk
-- maven
-- py4j
-- ipywidgets
-- jupyterlab
-- pyzmq
-- requests
-- beakerx
-- ipykernel
-- notebook
-- pyviz/label/dev::pyviz
-- pip
+- nodejs=11.9.0
+- pandas=0.24.1
+- openjdk=11.0.1
+- maven=3.6.0
+- py4j=0.10.7
+- jupyterlab=0.35.4
+- beakerx=1.3.0
+- ipykernel=5.1.0
+- pyviz/label/dev::pyviz=0.10.0
 - pip:
-    - json2yaml
-    - papermill
+    - json2yaml==1.1.1
+    - papermill==0.17.1
