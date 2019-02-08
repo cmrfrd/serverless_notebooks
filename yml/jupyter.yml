@@ -25,28 +25,25 @@ spec:
   containers:
     - name: jupyter
       image: serverless_datascience:dev
-      command: ["bash", "-c", "source activate serverless_datascience && \
+      command: ["bash", "-c", "source activate $(cat $ENVIRONMENT | yq -r .name ) &&\
                                jupyter notebook \
                                        --ip=0.0.0.0 \
                                        --NotebookApp.iopub_data_rate_limit=10000000 \
                                        --NotebookApp.token= \
                                        --allow-root"]
-#      command: ["source", "activate", "serverless_datascience", "&&", "conda", "env", "list"] 
+      env:
+        - name: OPENFAAS_URL
+          value: gateway-external.openfaas.svc.cluster.local:8080
       ports:
       - containerPort: 8888
         protocol: TCP
         name: http
       volumeMounts:
-        - mountPath: /home/jovyan/work/
-          name: notebook-volume
         - mountPath: /home/jovyan/work/mnt/
           name: host-mount
         - mountPath: "/var/run/docker.sock"
           name: dockersock
   volumes:
-  - name: notebook-volume
-    gitRepo:
-      repository: "https://github.com/kubernetes-client/python.git"
   - name: host-mount
     hostPath:
       path: /mnt
