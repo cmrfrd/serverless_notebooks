@@ -14,20 +14,20 @@ try:
 except:
     paramaters = json.loads("{}")
 
-## Get return type for notebook from 'Http_Accept' header   
-## if none return empty string (stdout)
-notebook_return_type = os.environ.get('Http_Accept',"").split(",")[0]
-
 ## Execute notebook from environment variable notebook paths
 ## Pass in stdin as json dict and disable all output
 papermill.execute_notebook(
     os.environ["PLACEHOLDER_NOTEBOOK"],
     os.environ["OUTPUT_NOTEBOOK"],
-    paramaters,
+    paramaters if os.environ["ACCEPT_PARAMETERS"] else None,
     progress_bar=False,
     log_output=False,
     report_mode=False
 )
+
+## Get return type for notebook from 'Http_Accept' header   
+## if none return empty string (stdout)
+notebook_return_type = os.environ.get('Http_Accept',"").split(",")[0]
 
 ## Get all the cell outputs from notebook
 ## iterate backwards and retrieve output that
