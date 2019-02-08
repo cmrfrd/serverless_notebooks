@@ -1,17 +1,19 @@
-FROM jupyter/scipy-notebook
+FROM jupyter/datascience-notebook
 
 ##
 ## os dependencies
 ##
 USER root
 RUN apt-get update &&\
-    apt-get install -y gnupg curl &&\
+    apt-get install -y gnupg \
+                       curl \
+                       build-essential \
+	               graphviz-dev \
+ 	               libssl1.0.0 \
+	               libssl-dev \
+                       jq &&\
     curl -sL https://deb.nodesource.com/setup_8.x | bash &&\
-	apt-get install -y \
-	build-essential \
-	graphviz-dev \
-	nodejs \
-	jq &&\
+    apt-get install -y nodejs &&\
     apt-get clean &&\
     pip install yq &&\
     conda update conda
@@ -20,24 +22,26 @@ RUN apt-get update &&\
 ## Environment var config
 ##
 ENV CONDA_DIR /opt/conda
-ENV PATH /home/jovyan/.local/bin:$PATH
+ENV PATH $CONDA_DIR:$PATH:/home/$NB_USER/.local/bin
+RUN chown -R $NB_USER /home/$NB_USER/
 
 ##
 ## Conda environment installation and kernal register
 ##
 ENV ENVIRONMENT=/environment.yml
 ADD environment.yml $ENVIRONMENT
-RUN conda env create -f /environment.yml
+RUN conda create --name $(cat $ENVIRONMENT | yq -r .name ) --clone base && \
+    conda env update -f /environment.yml
 RUN python -m ipykernel install \
 	--user \
 	--name $(cat $ENVIRONMENT | yq -r .name ) \
 	--display-name "$(cat $ENVIRONMENT | yq -r .name )"
 
 ##
-## Delete beakerx base log4j jar to stop logging to stdout
+## Delete beakerx base log4j jar to stop javelin from logging to stdout
 ## see: https://github.com/twosigma/beakerx/blob/3b2a272ee2699bdba400d83d813fe6744c533e38/kernel/base/build.gradle#L42
 ##
 RUN bash -c "source activate $(cat $ENVIRONMENT | yq -r .name ) ;\
              cd /opt/conda/envs/$(cat $ENVIRONMENT | yq -r .name )/lib/python3.6/site-packages/beakerx/kernel/base/lib/ ;\
              wget http://central.maven.org/maven2/org/slf4j/slf4j-nop/1.7.25/slf4j-nop-1.7.25.jar ;\
- 	     rm slf4j-log4j12-1.7.25.jar"
+  	     rm slf4j-log4j12-1.7.25.jar"
