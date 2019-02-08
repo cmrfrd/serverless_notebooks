@@ -3,7 +3,13 @@ FROM serverless_datascience:base
 ##
 ## Install docker in docker
 ##
-RUN wget -qO- https://get.docker.com/ | sh
+RUN curl -fsSL https://get.docker.com -o get-docker.sh &&\
+    sh get-docker.sh
+
+##
+## Install openfaas cli
+##
+RUN curl -sL https://cli.openfaas.com | sh
 
 ##
 ## Jupyter extension installation
@@ -27,7 +33,7 @@ RUN chmod +x /tini
 ##
 ## docker run startup
 ##
-RUN chown -R $NB_USER /home/$NB_USER/.local usermod -aG docker $NB_USER
+RUN usermod -a -G docker $NB_USER
 USER root
 RUN echo "source activate serverless_datascience" > ~/.bashrc
 ENTRYPOINT [ "/tini", "--", "bash", "-c"]
